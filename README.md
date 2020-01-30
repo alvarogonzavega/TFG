@@ -8,6 +8,6 @@ Open your command line shell and type the following
 ```
 git clone https://github.com/alvarogonzavega/TFG/src
 cd TFG/src
-Make
+make
 ./wsh
 ```
