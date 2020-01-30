@@ -157,7 +157,7 @@ Start:
 			argv[argcc][argvc][argc] = malloc(sizeof(char)*1000);
 			y=arg[c+1];
 			c++;
-			goto Start
+			goto Start;
 
 		}
 
