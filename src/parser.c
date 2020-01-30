@@ -157,7 +157,7 @@ Start:
 			argv[argcc][argvc][argc] = malloc(sizeof(char)*1000);
 			y=arg[c+1];
 			c++;
-			goto Start;
+			goto Start
 
 		}
 
@@ -246,4 +246,3 @@ int* get_order(char ****argvv, char *filep[3], int *bgp){
 	}
 
 }
-
