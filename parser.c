@@ -241,7 +241,7 @@ int* get_order(char ****argvv, char *filep[3], int *bgp){
 	for(int i=0; i<argcc; i++){
 
 		*argvv = argv[i];
-		return x[i].size();
+		return (sizeof(x[i])/4);
 
 	}
 
