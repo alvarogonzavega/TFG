@@ -151,7 +151,6 @@ Start:
 		if(y==' '){
 
 			if(c==pos) goto End;
-			x[argcc][argvc]++;
 			argc++;
 			a=0;
 			argv[argcc][argvc][argc] = malloc(sizeof(char)*1000);
@@ -162,6 +161,7 @@ Start:
 		}
 
 		argv[argcc][argvc][argc][a] = y;
+		if(a==0) x[argcc][argvc]++;
 End:
 		c++;
 		a++;
@@ -241,7 +241,7 @@ int* get_order(char ****argvv, char *filep[3], int *bgp){
 	for(int i=0; i<argcc; i++){
 
 		*argvv = argv[i];
-		return x[i];
+		return x[i].size();
 
 	}
 
