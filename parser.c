@@ -16,7 +16,7 @@ int argc;
 char *filev[3];
 int bg;
 int pos;
-int **x;
+int *x;
 
 
 char* getLine(void){
@@ -94,13 +94,13 @@ int getNewC(char *arg){
 char *getRedir(char *arg, int y){
 
 	char *redir = malloc(1000*sizeof(char));
-	int x = 0;
+	int z = 0;
 	for(;y<pos; y++){
 
 		if(arg[y]!=' ' && arg[y]!='\n' && arg[y]!=BG){
 
-			redir[x]=arg[y];
-			x++;
+			redir[z]=arg[y];
+			z++;
 
 			}
 
@@ -118,7 +118,6 @@ void command(char *arg){
 	argv[argcc][argvc][argc] = malloc(sizeof(char)*1000);
 	if(arg[0]==' ') c++;
 	if(arg[pos]==' ') pos--;
-	x[argcc][argvc]=1;
 	while(c<pos){
 
 		y = arg[c];
@@ -161,7 +160,6 @@ Start:
 		}
 
 		argv[argcc][argvc][argc][a] = y;
-		if(a==0) x[argcc][argvc]++;
 End:
 		c++;
 		a++;
@@ -190,7 +188,7 @@ void pipe(char * arg){
 		argc = 0;
 		if(argvc+1==i) pos=n[argvc]-1;
 		else pos=n[argvc];
-		x[argcc][argvc] = malloc(sizeof(int));
+		x[argcc]++;
 		argv[argcc][argvc] = malloc(sizeof(char**)*1000);
 		command(tok[argvc]);
 
@@ -202,7 +200,7 @@ void separate(char *arg){
 
 	char ** tok = malloc(sizeof(char) * 1000);
 	int * num = malloc(10 * sizeof(int));
-	x = malloc(sizeof(int**)*1000);
+	x = malloc(sizeof(int*)*1000);
 	char * argvv=arg;
 	int i=0;
 	argv = malloc(sizeof(char***) * 1000);
@@ -219,7 +217,7 @@ void separate(char *arg){
 		argvc = 0;
 		if(argcc+1==i) pos=num[argcc]-1;
 		else pos=num[argcc];
-		x[argcc] = malloc(sizeof(int*)*3);
+		x[argcc] = malloc(sizeof(int)*3);
 		argv[argcc] = malloc(sizeof(char**)*1000);
 		pipe(tok[argcc]);
 
@@ -228,8 +226,7 @@ void separate(char *arg){
 }
 
 
-
-int* get_order(char ****argvv, char *filep[3], int *bgp){
+int get_order(char ****argvv, char *filep[3], int *bgp){
 
 	reinitialize();
 	char * line= getLine();
@@ -241,7 +238,8 @@ int* get_order(char ****argvv, char *filep[3], int *bgp){
 	for(int i=0; i<argcc; i++){
 
 		*argvv = argv[i];
-		return (sizeof(x[i])/4);
+		if(pos==0) return 0;
+		else return (sizeof(x[i])/4);
 
 	}
 
