@@ -295,17 +295,17 @@ int get_order(char ****argvv, char *filep[3], int *bgp){
 	filep[2] = filev[2];
 	//The redirection commands
 	*bgp = bg;
-	int pip=0;
 	//The background signal
 	for(int i=0; i<argcc; i++){
 
+		int pip=0;
 		//As we only can execute one command each time, but the ; is to execute
 		// the command whatever happens to the previous command, we pass
 		// the commands in a for loop
 		*argvv = argv[i];
 		//The command itself
 		if(pos!=0) pip = x[i];
-		return x[i];
+		return pip;
 		//If we get a null command we pass 0
 		//Else we pass the number of pipelines
 
