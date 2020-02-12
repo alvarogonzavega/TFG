@@ -6,7 +6,7 @@ This is my end of degree project. It consists in making a Unix shell with some i
 
 Open your command line shell and type the following
 ```
-git clone https://github.com/alvarogonzavega/TFG/src
+git clone https://github.com/alvarogonzavega/TFG
 cd TFG
 make
 ./wsh
