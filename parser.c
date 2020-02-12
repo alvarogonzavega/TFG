@@ -311,5 +311,7 @@ int get_order(char ****argvv, char *filep[3], int *bgp){
 		//Else we pass the number of pipelines
 
 	}
+	
+	return 0;
 
 }
