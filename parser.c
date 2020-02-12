@@ -118,6 +118,7 @@ char *getRedir(char *arg, int y){
 			//We do not wanna store the bg sign, blank spaces
 			// or new line chars (as they indicate the end of the char*)
 			redir[z]=arg[y];
+			z++;
 
 			}
 
@@ -296,9 +297,9 @@ int get_order(char ****argvv, char *filep[3], int *bgp){
 	//The redirection commands
 	*bgp = bg;
 	//The background signal
+	int pip=0;
 	for(int i=0; i<argcc; i++){
 
-		int pip=0;
 		//As we only can execute one command each time, but the ; is to execute
 		// the command whatever happens to the previous command, we pass
 		// the commands in a for loop
