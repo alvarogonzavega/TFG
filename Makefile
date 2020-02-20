@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g -o
 
-OBJS = parser.c main.c
+OBJS = main.c
 
 all: wsh start
 
