@@ -519,9 +519,10 @@ int main(void) {
 
 
         }
+	
+	c++;
+		
     } /*fin while*/
-
-    c++;
 
   } /*end main*/
 
