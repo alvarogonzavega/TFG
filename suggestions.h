@@ -7,4 +7,4 @@
 #define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
 int distance(char *s1, char *s2);
-char levenshtein(char *cf, char **list);
+char *levenshtein(char *cf, char **list);
