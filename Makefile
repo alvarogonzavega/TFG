@@ -11,4 +11,4 @@ esh: $(HEADERS) $(OBJS)
 clean:
 	rm -f *.o *~ *.txt core esh
 start:
-	echo "PLEASE TYPE "./esh" TO START THE WSHELL"
+	echo "PLEASE TYPE "./esh" TO START THE ESHELL"

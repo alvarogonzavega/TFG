@@ -8,5 +8,5 @@ Open your command line shell and type the following
 ```
 git clone https://github.com/alvarogonzavega/TFG; cd TFG
 make
-./wsh
+./esh
 ```
