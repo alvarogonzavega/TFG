@@ -1,10 +1,8 @@
 /*-
+ *
  * wsh
- *
  * Wshell C source
- * Show how to use "obtain_order" input interface function
  *
- * THIS FILE IS TO BE MODIFIED
  */
 
 #include <stddef.h>            /* NULL */
@@ -14,11 +12,15 @@
 #include <string.h>
 #include <time.h>
 #include <fcntl.h>
-#define PIPE "|"
-#define BG '&'
-#define IN '<'
-#define OUT '>'
-#define MULT ";"
+
+#define SIZE 1024
+
+char *commands[] = {"pwd","ls","cd","mkdir","rmdir","lsblk","mount","df",
+"uname","ps","kill","service","batch","shutdown","touch","cat","head",
+"tail","cp","mv","comm","less","ln","cmp","dd","alias","cal","fortune",
+"history","yes","banner","rev","wget","iptables","traceroute","cURL",
+"find","which","locate","grep","sed","clear","echo","sort","sudo",
+"chmod","chown","man","tar","whatis"};
 
 char ****argv;
 int argcc;
@@ -30,11 +32,23 @@ int pos;
 int **args;
 int *x;
 
+GList list_commands=NULL;
+
+typedef struct{
+
+	char ***argvv;
+	int pipes;
+	int *args;
+	char *filev[3];
+	int bg;
+
+}Command;
+
 
 char* getLine(void){
 
-	//We reserve 500 bytes of chars in the memory
-	char *arg = malloc(500 * sizeof(char));
+	//We reserve 1024 bytes of chars in the memory
+	char *arg = malloc(SIZE * sizeof(char));
 	pos = 0; //Counter of bytes
 	int c;
 	if(!arg){
@@ -64,9 +78,9 @@ char* getLine(void){
 		}
 
 		pos++; //We increment the counter
-		if(pos>500){
+		if(pos>SIZE){
 
-			//If the command is longer than 500 bytes
+			//If the command is longer than 1024 bytes
 			fprintf(stderr, "wsh: Command too long!!");
 			exit(-1);
 
@@ -86,16 +100,7 @@ void reinitialize(){
 
 	//Whenever we pass a new command we need to free all the space allocated
 	// and put all the variables to 0
-  freeC(argv);
-	freeC(filev[0]);
-	freeC(filev[1]);
-	freeC(filev[2]);
-  freeC(args);
-  freeC(x);
-	bg = 0;
-	argvc=0;
-	argc=0;
-	pos=0;
+
 
 }
 
@@ -143,15 +148,14 @@ char *getRedir(char *arg, int y){
 }
 
 
-void command(char *arg){
+void command(char *arg, int argcc){
 
 	int c = 0; int a=0;
 	char y;
-	argv[argcc][argvc][argc] = malloc(sizeof(char)*500);
+	char ****argv=&(*Command)(g_list_find(list_commands, argcc)->data)->argvv;
 	//We reserve 500 bytes of memory to sore the command
 	if(arg[0]==' ') c++;
-	if(arg[pos]==' ') pos--;
-	//If we get a blank space at the start or the end we eliminate them
+	//If we get a blank space at the start we eliminate them
 	while(c<pos){
 
 		//While we get chars to read
@@ -519,10 +523,11 @@ int main(void) {
 
 
         }
-	
-	c++;
-		
+
+        c++;
+
     } /*fin while*/
+
 
   } /*end main*/
 

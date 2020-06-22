@@ -9,6 +9,7 @@
 #define OUT '>'
 
 char *getLine(void);
+void reinitialize();
 int getNewC(char *arg);
 char *getRedir(char *arg, int y);
 void command(char *arg);
