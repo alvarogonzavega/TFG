@@ -18,7 +18,7 @@
 char *commands[] = {"pwd","ls","cd","mkdir","rmdir","lsblk","mount","df",
 "uname","ps","kill","service","batch","shutdown","touch","cat","head",
 "tail","cp","mv","comm","less","ln","cmp","dd","alias","cal","fortune",
-"history","yes","banner","rev","wget","iptables","traceroute","cURL",
+"history","yes","banner","rev","wget","iptables","traceroute","curl",
 "find","which","locate","grep","sed","clear","echo","sort","sudo",
 "chmod","chown","man","tar","whatis"};
 
