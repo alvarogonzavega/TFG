@@ -58,27 +58,6 @@ char* getLine(void){
 }
 
 
-#define freeC(c) { if(c){ free(c); c=NULL; }}
-//To free the space allocated in the memory
-
-
-
-void reinitialize(){
-
-	//Whenever we pass a new command we need to free all the space allocated
-	// and put all the variables to 0
-	freeC(argv);
-	freeC(filev[0]);
-	freeC(filev[1]);
-	freeC(filev[2]);
-	bg = 0;
-	argvc=0;
-	argc=0;
-	pos=0;
-
-}
-
-
 
 int getNewC(char *arg){
 
@@ -236,5 +215,16 @@ void searchForPipe(char * arg){
 		command(tok[argvc]);
 
 	}
+
+}
+
+void get_order(char ***argvv, int pipe, char *filep[3], int b){
+
+	char * arg=getLine();
+	searchForPipe(arg);
+	argvv = argv;
+	pipe=argvc;
+	for(int i=0; i<3; i++) filep[i] = filev[i];
+	b = bg;
 
 }
