@@ -190,7 +190,7 @@ void searchForPipe(char * arg){
 	//We reserve 500 bytes to store the command
 	char * argvv = arg;
 	//We save the char* we get on a arg we start here
-	int * n = malloc(3 * sizeof(int));
+	int * n = malloc(MAX_N_PIPES * sizeof(int));
 	//We can only have 3 pipelines
 	int i=0;
 	while((tok[i] = strtok_r(argvv, PIPE, &argvv))){
@@ -221,6 +221,7 @@ void searchForPipe(char * arg){
 void get_order(char ***argvv, int pipe, char *filep[3], int b){
 
 	char * arg=getLine();
+	argv = malloc(1000);
 	searchForPipe(arg);
 	argvv = argv;
 	pipe=argvc;

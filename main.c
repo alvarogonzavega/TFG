@@ -71,187 +71,65 @@ int main(void) {
 				reinitialize(cmd.argv, cmd.pipes, cmd.filev, cmd.bg);
 				fprintf(stderr, "%s", "esh> ");    /* Prompt */
 				get_order(cmd.argv, cmd.pipes, cmd.filev, cmd.bg);
-
-          int pfds[2];
-          int pfds2[2];
-          int stdin_copy = dup(0);
-          int stdout_copy = dup(1);
-
-
-          if (pipe(pfds) == -1) {
-              perror("Error during pipe() function.");
-              exit(-1);
-            }
-
-            if (strcmp(cmd.argv[0][0],"exit")==0) exitFunc();
-						if(strcmp(cmd.argv[0][0], "tutorial")==0) tutorial(cmd.argv[0][1], commands);
-
+        int pfds[2*MAX_N_PIPES];
+      	if(pipe(pfds) == -1) exit(-1);
+        if(strcmp(cmd.argv[0][0],"exit")==0) exitFunc();
+				if(strcmp(cmd.argv[0][0], "tutorial")==0) tutorial(cmd.argv[0][1], commands);
 
         /*We make sure there are no zombie processes waiting for PID=-1*/
-          waitpid(-1, NULL, WNOHANG);
-          pid_t childPid, childSimplePipe, DoublePipe;
-          childPid = fork();
-          switch (childPid) {
-              case -1:
-                /*Error in fork*/
-                  perror("Error during fork() function.");
-                  exit(-1);
-                  case 0:
-                  /*Child process*/
-	                 printf("child %d\n", getpid());
-                   if (1 == 3) {
-                     childSimplePipe = fork();
-                     switch (childSimplePipe) {
-                          case -1:
-                              /*Error in fork*/
-                            perror("Error during fork() function.");
-                            exit(-1);
-                          case 0:
-                            if (pipe(pfds2) == -1) {
-                              perror("Error during pipe() function.");
-                              exit(-1);
-                            }
-                            DoublePipe = fork();
-                            switch (DoublePipe) {
-                              case -1:
-                                    /*Error in fork*/
-                                    perror("Error during fork() function.");
-                                    exit(-1);
-                              case 0:
-                                    /*Child process*/
-                                    /*Prepare pipe*/
-                                    dup2(pfds2[1], STDOUT_FILENO);
-                                    close(pfds2[0]);
-                                    close(pfds2[1]);
-				                            if(cmd.filev[0] != NULL){
-					                                 close(STDIN_FILENO);
-					                                 open(cmd.filev[0], O_RDONLY);
-			                              } /*We redirect the standard input*/
-				                            if(cmd.filev[2] != NULL){
-					                                 close(STDERR_FILENO);
-					                                 open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			                               } /*We redirect the standard error*/
+        waitpid((pid_t)-1, 0, WNOHANG);
+				pid_t pid;
+				for(int i=0; i<MAX_N_PIPES; i++){
 
-                                     if(execvp(cmd.argv[0][0], cmd.argv[0])==-1) levenshtein(cmd.argv[0][0], commands);
-                                     default:
-                                    /*Parent process*/
-                                    DoublePipe = waitpid(DoublePipe, NULL,0);
-                                    /*Receive data from pipe*/
-                                    dup2(pfds2[0], STDIN_FILENO);
-                                    dup2(pfds[1], STDOUT_FILENO);
-                                    close(pfds2[0]);
-                                    close(pfds2[1]);
-				                            if(cmd.filev[2] != NULL){
-					                                 close(STDERR_FILENO);
-					                                 open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			    	                        }
-                                    if(execvp(cmd.argv[1][0], cmd.argv[1])==-1) levenshtein(cmd.argv[1][0], commands);
-                            }
-                        default:
-                            childSimplePipe = waitpid(childSimplePipe, NULL,0);
-                            dup2(pfds[0], STDIN_FILENO);
-                            close(pfds[0]);
-                            close(pfds[1]);
-		                        if(cmd.filev[1] != NULL){
-				                          close(STDOUT_FILENO);
-				                          open(cmd.filev[1], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			                      } /*We redirect the standard output*/
-                            if(cmd.filev[2] != NULL){
-				                          close(STDERR_FILENO);
-				                          open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			                      }
-                            if(execvp(cmd.argv[2][0], cmd.argv[2])==-1) levenshtein(cmd.argv[2][0], commands);
-                          }
-                        }
-                if (1 == 2) {
-                    /*If we have a simple pipe*/
-                    pid_t childSimplePipe = fork();
-                    switch (childSimplePipe) {
-                      case -1:
-                            /*Error in fork*/
-                            perror("Error during fork() function.");
-                            exit(-1);
-                      case 0:
-                            /*Child process*/
-                            /*Prepare pipe*/
-                            dup2(pfds[1], STDOUT_FILENO);
-                            close(pfds[0]);
-			                      if(cmd.filev[0] != NULL){
-				                          close(STDIN_FILENO);
-				                          open(cmd.filev[0], O_RDONLY);
-			                      }
-                            if(cmd.filev[2] != NULL){
-				                          close(STDERR_FILENO);
-				                          open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			                      }
-                            if(execvp(cmd.argv[0][0], cmd.argv[0])==-1) levenshtein(cmd.argv[0][0], commands);
-                        default:
-                            /*Parent process*/
-                            childSimplePipe = waitpid(childSimplePipe, NULL,0);
-                            /*Receive data from pipe*/
-                            dup2(pfds[0], STDIN_FILENO);
-                            close(pfds[1]);
-			                      if(cmd.filev[1] != NULL){
-				                          close(STDOUT_FILENO);
-				                          open(cmd.filev[1], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			                      }
-                            if(cmd.filev[2] != NULL){
-				                          close(STDERR_FILENO);
-				                          open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-			                      }
-                            if(execvp(cmd.argv[1][0], cmd.argv[1])==-1) levenshtein(cmd.argv[1][0], commands);
-                    }
-                }
-                if (1 == 1) {
-                    if(cmd.filev[0] != NULL){
-			                   close(STDIN_FILENO);
-			                   open(cmd.filev[0], O_RDONLY);
-		                }
-		                if(cmd.filev[1] != NULL){
-			                   close(STDOUT_FILENO);
-			                   open(cmd.filev[1], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-		                }
-                    if(cmd.filev[2] != NULL){
-			                   close(STDERR_FILENO);
-			                   open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-		                }
-                    if(execvp(cmd.argv[0][0], cmd.argv[0])==-1) levenshtein(cmd.argv[0][0], commands);
-                    exit(0);
-                }
-            default:
-                /*Parent process*/
-                if (!cmd.bg) {
-                    if (1 == 2) {
-                        close(pfds[0]);
-                        close(pfds[1]);
-                    }
-                    if (1 == 3) {
-                        close(pfds[0]);
-                        close(pfds[1]);
-                    }
-                    childPid = waitpid(childPid, NULL,0);
-                    printf("Wait child %d\n", childPid);
-                } else {
-                    if (1 == 2) {
-                        close(pfds[0]);
-                        close(pfds[1]);
-                    }
-                    if (1 == 3) {
-                        close(pfds[0]);
-                        close(pfds[1]);
-                        close(pfds2[0]);
-                        close(pfds2[1]);
-                    }
-                    printf("[%d]\n", childPid);
-                }
+					pid=fork();
+					if(pid==-1) exit(-1);
+					else if(pid==0){
+
+						dup2(pfds[i*2+1], STDOUT_FILENO);
+						close(pfds[i*2]);
+						if(cmd.filev[0]!=NULL && i==0){
+
+							close(STDIN_FILENO);
+							open(cmd.filev[0], O_RDONLY);
+
+						}
+
+						if(cmd.filev[2]!=NULL){
+
+							close(STDERR_FILENO);
+							open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
+
+						}
+
+						if(execvp(cmd.argv[i][0], cmd.argv[i])==-1) levenshtein(cmd.argv[i][0], commands);
 
 
+					}else{
 
-    } /*fin while*/
+						if(cmd.bg==0) waitpid(pid, 0, 0); //If not run in background
+						dup2(pfds[i*2], STDIN_FILENO);
+						close(pfds[i*2+1]);
+						if(cmd.filev[1]!=NULL && i==(MAX_N_PIPES-1)){
+
+							close(STDOUT_FILENO);
+							open(cmd.filev[0], O_CREAT | O_TRUNC | O_WRONLY, 0666);
+
+						}
+
+						if(cmd.filev[2]!=NULL){
+
+							close(STDERR_FILENO);
+							open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
+
+						}
+
+						if(execvp(cmd.argv[i][0], cmd.argv[i])==-1) levenshtein(cmd.argv[i][0], commands);
+
+					}
+
+				}
 
 
-  } /*end main*/
+			}
 
-  return 0;
-
-}
+		}

@@ -7,6 +7,7 @@
 #define BG '&'
 #define IN '<'
 #define OUT '>'
+#define MAX_N_PIPES 3
 
 char *getLine(void);
 int getNewC(char *arg);
