@@ -41,6 +41,7 @@ void reinitialize(char ***argv, int pipes, char *filev[3], int bg){
 	freeC(filev[2]);
 	bg = 0;
 	pipes=0;
+	freeC(line);
 
 }
 
