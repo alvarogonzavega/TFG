@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define THRESHOLD 2
-#define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
-int distance(char *s1, char *s2);
+int min3(int a, int b, int c);
+int distance(char *s, int ls, char *t, int lt);
 char *levenshtein(char *cf, char **list);

@@ -4,28 +4,43 @@
 #include <string.h>
 #include "suggestions.h"
 
-int distance(char *s1, char *s2){
+int min3(int a, int b, int c){
 
-  int sl1, sl2;
-  sl1 = strlen(s1);
-  sl2 = strlen(s2);
-  int d[sl1+1][sl2+1];
-  d[0][0] = 0;
-  for(int i=1; i<sl1; i++){ d[i][0] = d[i-1][0]+1; }
-  for(int i=1; i<sl2; i++){ d[0][i] = d[0][i-1]+1; }
-  for(int i=1; i<sl1; i++){
-
-    for(int j=1; j<sl2; j++){
-
-      d[i][j] = MIN3(d[i-1][j]+1, d[i][j-1] + 1, d[i-1][j-1] + (s1[i-1] == s2[j-1] ? 0 : 1));
-
-    }
-
-  }
-
-  return d[sl1][sl2];
+  if(a<b && a<c) return a;
+  if(b<c && b<a) return b;
+  else return c;
 
 }
+
+int distance(char *s, int ls, char *t, int lt){
+
+  int a, b, c;
+
+        /* if either string is empty, difference is inserting all chars
+         * from the other
+         */
+        if (!ls) return lt;
+        if (!lt) return ls;
+
+        /* if last letters are the same, the difference is whatever is
+         * required to edit the rest of the strings
+         */
+        if (s[ls - 1] == t[lt - 1])
+                return distance(s, ls - 1, t, lt - 1);
+
+        /* else try:
+         *      changing last letter of s to that of t; or
+         *      remove last letter of s; or
+         *      remove last letter of t,
+         * any of which is 1 edit plus editing the rest of the strings
+         */
+        a = distance(s, ls - 1, t, lt - 1);
+        b = distance(s, ls,     t, lt - 1);
+        c = distance(s, ls - 1, t, lt    );
+        a = min3(a,b,c);
+
+        return a + 1;
+  }
 
 char *levenshtein(char *cf, char **list){
 
@@ -39,7 +54,7 @@ char *levenshtein(char *cf, char **list){
     if(c<-1 || c>1) a=0;
     else{
 
-      a=distance(cf, list[i]);
+      a=distance(cf, strlen(cf), list[i], strlen(list[i]));
       if(a<=THRESHOLD && a<min){
 
         min=a;

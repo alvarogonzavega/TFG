@@ -12,53 +12,6 @@ int bg;
 int pos;
 
 
-char* getLine(void){
-
-	//We reserve 500 bytes of chars in the memory
-	char *arg = malloc(500 * sizeof(char));
-	pos = 0; //Counter of bytes
-	int c;
-	if(!arg){
-
-		//If we don´t have enough space on the memory
-		fprintf(stderr, "wsh: Error in the allocation!!");
-		exit(-1);
-
-	}
-
-	while(1){
-
-		//Infinite loop
-		c = getchar(); //We get the character
-		if(c == EOF || c == '\n'){
-
-			//If we reach the end of the command
-			arg[pos] = '\n';
-			//We add the new line character at the end of the char and we return it
-			return arg;
-
-		}else{
-
-			//We add the character in the position
-			arg[pos] = c;
-
-		}
-
-		pos++; //We increment the counter
-		if(pos>500){
-
-			//If the command is longer than 500 bytes
-			fprintf(stderr, "wsh: Command too long!!");
-			exit(-1);
-
-		}
-
-	}
-
-}
-
-
-
 int getNewC(char *arg){
 
 	//To count all the chars whenever we separate the char (pipeline or ;)
@@ -218,14 +171,15 @@ void searchForPipe(char * arg){
 
 }
 
-void get_order(char ***argvv, int pipe, char *filep[3], int b){
+Command get_order(char * line, Command cmd){
 
-	char * arg=getLine();
+	pos=strlen(line)-1;
 	argv = malloc(1000);
-	searchForPipe(arg);
-	argvv = argv;
-	pipe=argvc;
-	for(int i=0; i<3; i++) filep[i] = filev[i];
-	b = bg;
+	searchForPipe(line);
+	cmd.argv = argv;
+	cmd.pipes = argvc;
+	for(int i=0; i<3; i++) cmd.filev[i] = filev[i];
+	cmd.bg = bg;
+	return cmd;
 
 }
