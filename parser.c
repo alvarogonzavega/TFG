@@ -93,11 +93,11 @@ Start:
 
 			}
 
-		if(y==BG && arg[c-1] == OUT){
+		if(y==OUT && arg[c+1] == BG){
 
 			//We have the ampersand(&) and the previous char is the >
 			// this is the error redirection
-			filev[2] = getRedir(arg, c+1);
+			filev[2] = getRedir(arg, c+2);
 			c+=strlen(filev[2]);
 			goto End;
 

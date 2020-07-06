@@ -616,6 +616,6 @@ void tutorial(char *c, char **list){
 
   }
 
-  else printf("Sorry!! That command is not listed in our guide. Follow for more updates :)");
+  else printf("Sorry!! That command is not listed in our guide. Follow for more updates :)\n");
 
 }
