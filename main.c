@@ -12,6 +12,8 @@
 #include <string.h>
 #include <time.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "suggestions.h"
 #include "tutorial.h"
 #include "parser.h"
@@ -97,81 +99,71 @@ void exitFunc(){
     exit(0);
 }
 
+void execute(Command cmd){
+
+	waitpid(-1, 0, WNOHANG);
+	for(int i=0; i<cmd.pipes; i++){
+
+		int j=0;
+		while(cmd.argv[i][j]!=NULL){
+
+			 if(strlen(cmd.argv[i][j])==0)
+			  cmd.argv[i][j] = NULL;
+			 j++;
+
+		 }
+
+	 }
+
+	if(cmd.pipes>1){
+
+		int pfd[2];
+		if(pipe(pfd)<0) exit(-1);
+
+	}
+
+	for(int i=0; i<cmd.pipes; i++){
+
+		pid_t pid;
+		pid=fork();
+		if(pid<0) exit(-1);
+		else if(pid==0){
+
+			//close(pfd[0]);
+			//dup2(pfd[1], STDOUT_FILENO);
+			//close(pfd[1]);
+			if(cmd.filev[0]!=NULL && i==0){
+
+				close(STDIN_FILENO);
+				//open(filev[0], )
+
+			}
+
+		}
+
+	}
+
+}
+
 
 int main(void) {
 
-		Command cmd;
-		for(int i=0; i<3; i++) cmd.filev[i] = malloc(100);
 		setbuf(stdout, NULL);            /* Unbuffered */
   	setbuf(stdin, NULL);
 
     while (1) {
 
 			int special=0;
-			reinitialize(cmd.argv, cmd.pipes, cmd.filev, cmd.bg);
+			Command cmd;
+			for(int i=0; i<3; i++) cmd.filev[i] = malloc(100);
+			//reinitialize(cmd.argv, cmd.pipes, cmd.filev, cmd.bg);
 			fprintf(stdout, "%s", "esh> ");    /* Prompt */
 			getLine();
 			cmd=get_order(line, cmd);
-      int pfds[2*MAX_N_PIPES];
-      if(pipe(pfds) == -1) exit(-1);
       if(strcmp(cmd.argv[0][0],"exit")==0) exitFunc();
 			if(strcmp(cmd.argv[0][0], "tutorial")==0){ tutorial(cmd.argv[0][1], commands); special=1; }
-			if(special==0){
+			if(special==0) execute(cmd);
 
-        /*We make sure there are no zombie processes waiting for PID=-1*/
-				waitpid(-1, 0, WNOHANG);
-				pid_t pid;
-				for(int i=0; i<MAX_N_PIPES; i++){
-
-					pid=fork();
-					if(pid==-1) exit(-1);
-					else if(pid==0){
-
-						dup2(pfds[i*2+1], STDOUT_FILENO);
-						close(pfds[i*2]);
-						if(cmd.filev[0]!=NULL && i==0){
-
-							close(STDIN_FILENO);
-							open(cmd.filev[0], O_RDONLY);
-
-						}
-
-						if(cmd.filev[2]!=NULL){
-
-							close(STDERR_FILENO);
-							open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-
-						}
-
-						if(execvp(cmd.argv[i][0], cmd.argv[i])==-1) levenshtein(cmd.argv[i][0], commands);
-
-
-					}else{
-
-						if(cmd.bg==0) waitpid(pid, 0, 0); //If not run in background
-						dup2(pfds[i*2], STDIN_FILENO);
-						close(pfds[i*2+1]);
-						if(cmd.filev[1]!=NULL && i==(MAX_N_PIPES-1)){
-
-							close(STDOUT_FILENO);
-							open(cmd.filev[0], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-
-						}
-
-						if(cmd.filev[2]!=NULL){
-
-							close(STDERR_FILENO);
-							open(cmd.filev[2], O_CREAT | O_TRUNC | O_WRONLY, 0666);
-
-						}
-
-						if(execvp(cmd.argv[i][0], cmd.argv[i])==-1) levenshtein(cmd.argv[i][0], commands);
-
-					}
-
-				}
-
-			}
 
 			}
 
