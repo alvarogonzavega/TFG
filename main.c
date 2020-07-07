@@ -103,46 +103,79 @@ void execute(Command cmd){
 
 	waitpid(-1, 0, WNOHANG);
 	for(int i=0; i<cmd.pipes; i++){
-
+		
 		int j=0;
-		while(cmd.argv[i][j]!=NULL){
-
-			 if(strlen(cmd.argv[i][j])==0)
-			  cmd.argv[i][j] = NULL;
-			 j++;
-
-		 }
-
-	 }
-
-	if(cmd.pipes>1){
-
-		int pfd[2];
-		if(pipe(pfd)<0) exit(-1);
-
+		while(cmd.argv[i][j]){
+			
+			if(strlen(cmd.argv[i][j])==0){
+				
+				cmd.argv[i][j]=NULL;
+				break;
+				
+			}
+			
+			j++;
+			
+		}
+		
 	}
-
+	
+	int pfd[2];
+	if(pipe(pfd)<0) exit(-1);
 	for(int i=0; i<cmd.pipes; i++){
-
+	
 		pid_t pid;
 		pid=fork();
+		int fd;
 		if(pid<0) exit(-1);
 		else if(pid==0){
-
-			//close(pfd[0]);
-			//dup2(pfd[1], STDOUT_FILENO);
-			//close(pfd[1]);
+		
+			close(pfd[0]);
+			dup2(pfd[1], STDOUT_FILENO);
+			close(pfd[1]);
 			if(cmd.filev[0]!=NULL && i==0){
-
-				close(STDIN_FILENO);
-				//open(filev[0], )
-
+				
+				fd=open(cmd.filev[0], O_RDONLY, 0);
+				dup2(fd, STDIN_FILENO);
+				close(fd);
+					
 			}
-
-		}
-
+			
+			if(cmd.filev[2]!=NULL){
+				
+				fd=creat(cmd.filev[2], 0644);
+				dup2(fd, STDERR_FILENO);
+				close(fd);
+				
+			}
+			
+			if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i][0], commands);
+			
+		}else if(pid>0){
+			
+			if(cmd.bg>0) wait(NULL);
+			close(pfd[1]);
+			dup2(pfd[0], STDIN_FILENO);
+			close(pfd[0]);
+			if(cmd.filev[1]!=NULL && i==(cmd.pipes -1)){
+				
+				fd=creat(cmd.filev[1], 0644);
+				dup2(fd, STDIN_FILENO);
+				close(fd);
+					
+			}
+			
+			if(cmd.filev[2]!=NULL){
+				
+				fd=creat(cmd.filev[2], 0644);
+				dup2(fd, STDERR_FILENO);
+				close(fd);
+				
+			}
+			
+			if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i][0], commands);
+		
 	}
-
 }
 
 
