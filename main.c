@@ -173,6 +173,8 @@ void execute(Command cmd) {
 
             }
         }
+    
+    }
 
         int main(void) {
 
