@@ -117,64 +117,114 @@ void execute(Command cmd) {
         }
 
         int pfd[2];
-        if (pipe(pfd) < 0) exit(-1);
-        for (int i = 0; i < cmd.pipes; i++) {
+				int pfd2[2];
+				pid_t pid, pid2, pid3;
+				if (pipe(pfd) < 0) exit(-1);
+				pid = fork();
+        int fd;
+				int status;
+        if (pid < 0) exit(-1);
+        else if (pid == 0) {
 
-            pid_t pid;
-            pid = fork();
-            int fd;
-            if (pid < 0) exit(-1);
-            else if (pid == 0) {
+        	close(pfd[0]);
+          dup2(pfd[1], STDOUT_FILENO);
+          close(pfd[1]);
+      		if (cmd.filev[0] != NULL) {
 
-                close(pfd[0]);
-                dup2(pfd[1], STDOUT_FILENO);
-                close(pfd[1]);
-                if (cmd.filev[0] != NULL && i == 0) {
+          	fd = open(cmd.filev[0], O_RDONLY, 0);
+            dup2(fd, STDIN_FILENO);
+            close(fd);
 
-                    fd = open(cmd.filev[0], O_RDONLY, 0);
-                    dup2(fd, STDIN_FILENO);
-                    close(fd);
+        	}
 
-                }
+					if(cmd.filev[1] != NULL){
 
-                if (cmd.filev[2] != NULL) {
+						fd = creat(cmd.filev[1], 0644);
+						dup2(fd, STDOUT_FILENO);
+						close(fd);
 
-                    fd = creat(cmd.filev[2], 0644);
-                    dup2(fd, STDERR_FILENO);
-                    close(fd);
+					}
 
-                }
+          if (cmd.filev[2] != NULL) {
 
-                if (execvp(cmd.argv[i][0], cmd.argv[i]) < 0) levenshtein(cmd.argv[i][0], commands);
+              fd = creat(cmd.filev[2], 0644);
+              dup2(fd, STDERR_FILENO);
+              close(fd);
 
-            } else if (pid > 0) {
+          }
 
-                if (cmd.bg > 0) wait(NULL);
-                close(pfd[1]);
-                dup2(pfd[0], STDIN_FILENO);
-                close(pfd[0]);
-                if (cmd.filev[1] != NULL && i == (cmd.pipes - 1)) {
+          if (execvp(cmd.argv[0][0], cmd.argv[0]) < 0) levenshtein(cmd.argv[0][0], commands);
 
-                    fd = creat(cmd.filev[1], 0644);
-                    dup2(fd, STDIN_FILENO);
-                    close(fd);
+        } else if (pid > 0) {
 
-                }
+					pid2 = fork();
+					if(pipe(pfd2)<0) exit(-1);
+          if(pid2<0) exit(-1);
+					if(pid2==0){
 
-                if (cmd.filev[2] != NULL) {
+						close(pfd[1]);
+          	dup2(pfd[0], STDIN_FILENO);
+          	close(pfd[0]);
+						close(pfd2[0]);
+						dup2(pfd2[1], STDOUT_FILENO);
+						close(pfd2[1]);
 
-                    fd = creat(cmd.filev[2], 0644);
-                    dup2(fd, STDERR_FILENO);
-                    close(fd);
+						if(cmd.filev[1] != NULL){
 
-                }
+							fd = creat(cmd.filev[1], 0644);
+              dup2(fd, STDOUT_FILENO);
+              close(fd);
 
-                if (execvp(cmd.argv[i][0], cmd.argv[i]) < 0) levenshtein(cmd.argv[i][0], commands);
+						}
 
-            }
-        }
-    
-    }
+						if (cmd.filev[2] != NULL) {
+
+            	fd = creat(cmd.filev[2], 0644);
+              dup2(fd, STDERR_FILENO);
+              close(fd);
+
+						}
+
+          	if (execvp(cmd.argv[1][0], cmd.argv[1]) < 0) levenshtein(cmd.argv[1][0], commands);
+
+					}else if (pid2 > 0){
+
+							if(cmd.bg>0) waitpid(pid, &status, 0);
+							pid3 = fork();
+							if(pid3<0) exit(-1);
+							if(pid3==0){
+
+								if(cmd.bg>0) waitpid(pid2, NULL, 0);
+								close(pfd2[1]);
+								dup2(pfd2[0], STDIN_FILENO);
+								close(pfd2[0]);
+
+								if(cmd.filev[1] != NULL){
+
+									fd = creat(cmd.filev[1], 0644);
+		              dup2(fd, STDOUT_FILENO);
+		              close(fd);
+
+								}
+
+								if(cmd.filev[2] != NULL){
+
+									fd = creat(cmd.filev[2], 0644);
+		              dup2(fd, STDERR_FILENO);
+		              close(fd);
+
+								}
+
+								if(execvp(cmd.argv[2][0], cmd.argv[2])<0) levenshtein(cmd.argv[2][0], commands);
+
+							}else if(pid3>0){
+
+								if(cmd.bg>0) waitpid(pid2, &status, 0);
+
+							}
+						}
+        	}
+				}
 
         int main(void) {
 
