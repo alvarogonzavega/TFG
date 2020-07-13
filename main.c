@@ -98,24 +98,6 @@ void exitFunc() {
 void execute(Command cmd) {
 
         waitpid(-1, 0, WNOHANG);
-        for (int i = 0; i < cmd.pipes; i++) {
-
-            int j = 0;
-            while (cmd.argv[i][j]) {
-
-                if (strlen(cmd.argv[i][j]) == 0) {
-
-                    cmd.argv[i][j] = NULL;
-                    break;
-
-                }
-
-                j++;
-
-            }
-
-        }
-
         int pfd[cmd.pipes][2];
 				pid_t pid[cmd.pipes];
 				int status, fd;
