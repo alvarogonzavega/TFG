@@ -154,13 +154,13 @@ void execute(Command cmd) {
 
             setbuf(stdout, NULL); /* Unbuffered */
             setbuf(stdin, NULL);
+	    Command cmd;	
 
             while (1) {
 
                 int special = 0;
-                Command cmd;
                 for (int i = 0; i < 3; i++) cmd.filev[i] = malloc(100);
-                //reinitialize(cmd.argv, cmd.pipes, cmd.filev, cmd.bg);
+                reinitialize(cmd.argv, cmd.pipes, cmd.filev, cmd.bg);
                 fprintf(stdout, "%s", "esh> "); /* Prompt */
                 getLine();
                 cmd = get_order(line, cmd);
