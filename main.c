@@ -118,7 +118,7 @@ void execute(Command cmd) {
 
         int pfd[2];
 				int pfd2[2];
-				pid_t pid, pid2, pid3;
+				pid_t pid;
 				if (pipe(pfd) < 0) exit(-1);
 				pid = fork();
         int fd;
@@ -153,14 +153,14 @@ void execute(Command cmd) {
 
           }
 
-          if (execvp(cmd.argv[0][0], cmd.argv[0]) < 0) levenshtein(cmd.argv[0][0], commands);
+          if (execvp(cmd.argv[0][0], cmd.argv[0]) < 0) levenshtein(cmd.argv[0], commands);
 
         } else if (pid > 0) {
 
-					pid2 = fork();
+					pid = fork();
 					if(pipe(pfd2)<0) exit(-1);
-          if(pid2<0) exit(-1);
-					if(pid2==0){
+          if(pid<0) exit(-1);
+					if(pid==0){
 
 						close(pfd[1]);
           	dup2(pfd[0], STDIN_FILENO);
@@ -185,16 +185,16 @@ void execute(Command cmd) {
 
 						}
 
-          	if (execvp(cmd.argv[1][0], cmd.argv[1]) < 0) levenshtein(cmd.argv[1][0], commands);
+          	if (execvp(cmd.argv[1][0], cmd.argv[1]) < 0) levenshtein(cmd.argv[1], commands);
 
-					}else if (pid2 > 0){
+					}else if (pid > 0){
 
 							if(cmd.bg>0) waitpid(pid, &status, 0);
-							pid3 = fork();
-							if(pid3<0) exit(-1);
-							if(pid3==0){
+							pid = fork();
+							if(pid<0) exit(-1);
+							if(pid==0){
 
-								if(cmd.bg>0) waitpid(pid2, NULL, 0);
+								if(cmd.bg>0) waitpid(pid, NULL, 0);
 								close(pfd2[1]);
 								dup2(pfd2[0], STDIN_FILENO);
 								close(pfd2[0]);
@@ -215,11 +215,11 @@ void execute(Command cmd) {
 
 								}
 
-								if(execvp(cmd.argv[2][0], cmd.argv[2])<0) levenshtein(cmd.argv[2][0], commands);
+								if(execvp(cmd.argv[2][0], cmd.argv[2])<0) levenshtein(cmd.argv[2], commands);
 
-							}else if(pid3>0){
+							}else if(pid>0){
 
-								if(cmd.bg>0) waitpid(pid2, &status, 0);
+								if(cmd.bg>0) waitpid(pid, &status, 0);
 
 							}
 						}

@@ -42,9 +42,9 @@ int distance(char *s, int ls, char *t, int lt){
         return a + 1;
   }
 
-char *levenshtein(char *cf, char **list){
+void *levenshtein(char **cf, char **list){
 
-  int sl=strlen(cf);
+  int sl=strlen(cf[0]);
   int a=0;
   int min=10000;
   char *corrected="";
@@ -54,7 +54,7 @@ char *levenshtein(char *cf, char **list){
     if(c<-1 || c>1) a=0;
     else{
 
-      a=distance(cf, strlen(cf), list[i], strlen(list[i]));
+      a=distance(cf[0], strlen(cf[0]), list[i], strlen(list[i]));
       if(a<=THRESHOLD && a<min){
 
         min=a;
@@ -66,6 +66,17 @@ char *levenshtein(char *cf, char **list){
 
   }
 
-  return corrected;
+  int i=1;
+  while(cf[i]!=NULL){ i++; }
+
+  printf("Maybe you wanted to type this: %s", corrected);
+  for(int j=1; j<i; j++){
+
+    printf(" %s", cf[j]);
+
+  }
+
+
+  printf("\n");
 
 }
