@@ -42,7 +42,7 @@ int distance(char *s, int ls, char *t, int lt){
         return a + 1;
   }
 
-void *levenshtein(char **cf, char **list){
+int *levenshtein(char **cf, char **list){
 
   int sl=strlen(cf[0]);
   int a=0;
@@ -78,5 +78,6 @@ void *levenshtein(char **cf, char **list){
 
 
   printf("\n");
+  return 0;
 
 }

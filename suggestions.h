@@ -7,4 +7,4 @@
 
 int min3(int a, int b, int c);
 int distance(char *s, int ls, char *t, int lt);
-void *levenshtein(char **cf, char **list);
+int *levenshtein(char **cf, char **list);

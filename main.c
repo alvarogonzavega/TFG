@@ -116,114 +116,56 @@ void execute(Command cmd) {
 
         }
 
-        int pfd[2];
-				int pfd2[2];
-				pid_t pid;
-				if (pipe(pfd) < 0) exit(-1);
-				pid = fork();
-        int fd;
-				int status;
-        if (pid < 0) exit(-1);
-        else if (pid == 0) {
+        int pfd[cmd.pipes][2];
+				pid_t pid[cmd.pipes];
+				int status, fd;
+				for(int i=0; i<cmd.pipes; i++){
 
-        	close(pfd[0]);
-          dup2(pfd[1], STDOUT_FILENO);
-          close(pfd[1]);
-      		if (cmd.filev[0] != NULL) {
+					if(pipe(pfd[i])<0) exit(-1);
+					pid[i] = fork();
+					if(pid[i]<0) exit(-1);
+					if(pid[i]==0){
 
-          	fd = open(cmd.filev[0], O_RDONLY, 0);
-            dup2(fd, STDIN_FILENO);
-            close(fd);
+						close(pfd[i][0]);
+						dup2(pfd[i][1], STDOUT_FILENO);
+						close(pfd[i][1]);
+						if(cmd.filev[0]!=NULL && i==0){
 
-        	}
+							fd=open(cmd.filev[0], O_RDONLY);
+							dup2(fd, STDIN_FILENO);
+							close(fd);
 
-					if(cmd.filev[1] != NULL){
+						}
 
-						fd = creat(cmd.filev[1], 0644);
-						dup2(fd, STDOUT_FILENO);
-						close(fd);
+						if(cmd.filev[1]!=NULL && i==(cmd.pipes-1)){
+
+							fd = creat(cmd.filev[1], 0644);
+							dup2(fd, STDOUT_FILENO);
+							close(fd);
+
+						}
+
+						if(cmd.filev[2]!=NULL){
+
+							fd = creat(cmd.filev[2], 0644);
+							dup2(fd, STDERR_FILENO);
+							close(fd);
+
+						}
+						if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i], commands);
+
+					}else if(pid[i]>0){
+
+						if(cmd.bg==0) waitpid(getpid(), &status, 0);
+						close(pfd[i][1]);
+						dup2(pfd[i][0], STDIN_FILENO);
+						close(pfd[i][0]);
+						if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i], commands);
 
 					}
 
-          if (cmd.filev[2] != NULL) {
+				}
 
-              fd = creat(cmd.filev[2], 0644);
-              dup2(fd, STDERR_FILENO);
-              close(fd);
-
-          }
-
-          if (execvp(cmd.argv[0][0], cmd.argv[0]) < 0) levenshtein(cmd.argv[0], commands);
-
-        } else if (pid > 0) {
-
-					pid = fork();
-					if(pipe(pfd2)<0) exit(-1);
-          if(pid<0) exit(-1);
-					if(pid==0){
-
-						close(pfd[1]);
-          	dup2(pfd[0], STDIN_FILENO);
-          	close(pfd[0]);
-						close(pfd2[0]);
-						dup2(pfd2[1], STDOUT_FILENO);
-						close(pfd2[1]);
-
-						if(cmd.filev[1] != NULL){
-
-							fd = creat(cmd.filev[1], 0644);
-              dup2(fd, STDOUT_FILENO);
-              close(fd);
-
-						}
-
-						if (cmd.filev[2] != NULL) {
-
-            	fd = creat(cmd.filev[2], 0644);
-              dup2(fd, STDERR_FILENO);
-              close(fd);
-
-						}
-
-          	if (execvp(cmd.argv[1][0], cmd.argv[1]) < 0) levenshtein(cmd.argv[1], commands);
-
-					}else if (pid > 0){
-
-							if(cmd.bg>0) waitpid(pid, &status, 0);
-							pid = fork();
-							if(pid<0) exit(-1);
-							if(pid==0){
-
-								if(cmd.bg>0) waitpid(pid, NULL, 0);
-								close(pfd2[1]);
-								dup2(pfd2[0], STDIN_FILENO);
-								close(pfd2[0]);
-
-								if(cmd.filev[1] != NULL){
-
-									fd = creat(cmd.filev[1], 0644);
-		              dup2(fd, STDOUT_FILENO);
-		              close(fd);
-
-								}
-
-								if(cmd.filev[2] != NULL){
-
-									fd = creat(cmd.filev[2], 0644);
-		              dup2(fd, STDERR_FILENO);
-		              close(fd);
-
-								}
-
-								if(execvp(cmd.argv[2][0], cmd.argv[2])<0) levenshtein(cmd.argv[2], commands);
-
-							}else if(pid>0){
-
-								if(cmd.bg>0) waitpid(pid, &status, 0);
-
-							}
-						}
-        	}
 				}
 
         int main(void) {
