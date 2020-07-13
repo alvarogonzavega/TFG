@@ -171,15 +171,41 @@ void searchForPipe(char * arg){
 
 }
 
+void clean(){
+
+
+	for(int i=0; i<argvc; i++){
+  
+      	    int j = 0;
+            while (argv[i][j]) {
+
+                if (strlen(argv[i][j]) == 0) {
+
+                    argv[i][j] = NULL;
+                    break;
+
+                }
+
+                j++;
+
+            }
+  
+	  }	
+
+}
+
 Command get_order(char * line, Command cmd){
 
 	pos=strlen(line)-1;
 	argv = malloc(1000);
 	searchForPipe(line);
+	clean();
 	cmd.argv = argv;
 	cmd.pipes = argvc;
 	for(int i=0; i<3; i++) cmd.filev[i] = filev[i];
 	cmd.bg = bg;
+	argvc = 0;
+	for(int i=0; i<3; i++) free(filev[i]);
 	return cmd;
 
 }
