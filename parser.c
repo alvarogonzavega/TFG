@@ -175,8 +175,6 @@ Command get_order(char * line, Command cmd){
 
 	pos=strlen(line)-1;
 	argv = malloc(1000);
-	int argvc=0;
-	for(int i=0; i<3; i++) filev[i]=NULL;
 	searchForPipe(line);
 	cmd.argv = argv;
 	cmd.pipes = argvc;
