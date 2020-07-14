@@ -18,9 +18,9 @@ typedef struct{
 
 }Command;
 
-char *getLine(void);
 int getNewC(char *arg);
 char *getRedir(char *arg, int y);
 void command(char *arg);
 void searchForPipe(char *arg);
+void clean();
 Command get_order(char * line, Command cmd);
