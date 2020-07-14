@@ -205,7 +205,6 @@ Command get_order(char * line, Command cmd){
 	for(int i=0; i<3; i++) cmd.filev[i] = filev[i];
 	cmd.bg = bg;
 	argvc = 0;
-	for(int i=0; i<3; i++) free(filev[i]);
 	return cmd;
 
 }
