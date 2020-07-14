@@ -30,6 +30,14 @@ char * line;
 #define freeC(c) { if (c) { free(c); c = NULL; } }
 //To free the space allocated in the memory
 
+#define CLOSEME(_fd) \
+    do { \
+        if (_fd < 0) \
+            break; \
+        close(_fd); \
+        _fd = -1; \
+    } while (0)
+
 void reinitialize(char ** * argv, int pipes, char * filev[3], int bg) {
 
     //Whenever we pass a new command we need to free all the space allocated
@@ -97,64 +105,92 @@ void exitFunc() {
 
 void execute(Command cmd) {
 
-        waitpid(-1, 0, WNOHANG);
-        int pfd[cmd.pipes][2];
-				pid_t pid[cmd.pipes];
-				int status, fd;
-				for(int i=0; i<cmd.pipes; i++){
+	waitpid(-1, 0, WNOHANG);
+  int pfd[2] = {-1, -1};
+	pid_t pid, lastpid=-1;
+	int status, oldfd, errfd=-1;
+	if(cmd.filev[2]!=NULL){
 
-					if(pipe(pfd[i])<0) exit(-1);
-					pid[i] = fork();
-					if(pid[i]<0) exit(-1);
-					if(pid[i]==0){
+		 errfd = creat(cmd.filev[2], 0644);
+		 dup2(errfd, STDERR_FILENO);
 
-						close(pfd[i][0]);
-						dup2(pfd[i][1], STDOUT_FILENO);
-						close(pfd[i][1]);
-						if(cmd.filev[0]!=NULL && i==0){
+	 }
 
-							fd=open(cmd.filev[0], O_RDONLY);
-							dup2(fd, STDIN_FILENO);
-							close(fd);
+	for(int i=0; i<cmd.pipes; i++){
 
-						}
+			oldfd = pfd[0];
+			if(i<(cmd.pipes-1)){
 
-						if(cmd.filev[1]!=NULL && i==(cmd.pipes-1)){
+				if(pipe(pfd)<0) exit(-1);
 
-							fd = creat(cmd.filev[1], 0644);
-							dup2(fd, STDOUT_FILENO);
-							close(fd);
+			}
 
-						}
+			pid=fork();
+			lastpid = pid;
+			if(pid<0) exit(-1);
+			if(pid>0){
 
-						if(cmd.filev[2]!=NULL){
+				CLOSEME(pfd[1]);
+				continue;
 
-							fd = creat(cmd.filev[2], 0644);
-							dup2(fd, STDERR_FILENO);
-							close(fd);
+			}
 
-						}
-						if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i], commands);
+			int fd=-1;
+			if(cmd.filev[0]!=NULL && i==0) fd = open(cmd.filev[0], O_RDONLY);
+			else{
 
-					}else if(pid[i]>0){
+				fd = oldfd;
+				oldfd = -1;
 
-						if(cmd.bg==0) waitpid(getpid(), &status, 0);
-						close(pfd[i][1]);
-						dup2(pfd[i][0], STDIN_FILENO);
-						close(pfd[i][0]);
-						if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i], commands);
+			}
 
-					}
+			if(fd!=-1){
 
-				}
+				dup2(fd, STDIN_FILENO);
+				close(fd);
 
-				}
+			}
+
+			fd=-1;
+			if(cmd.filev[1]!=NULL && i==(cmd.pipes-1)){
+
+				fd = creat(cmd.filev[1], 0644);
+				dup2(fd, STDOUT_FILENO);
+				close(fd);
+
+			}
+
+			if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i], commands);
+
+	}
+
+	int last_status=0;
+	if(cmd.bg==0){
+
+		while(1){
+
+			pid=wait(&status);
+			if(pid<0) break;
+			if(pid==lastpid){
+
+				last_status = status;
+				break;
+
+			}
+
+		}
+
+	}
+
+	CLOSEME(errfd);
+
+}
 
         int main(void) {
 
             setbuf(stdout, NULL); /* Unbuffered */
             setbuf(stdin, NULL);
-	    Command cmd;	
+	    			Command cmd;
 
             while (1) {
 
