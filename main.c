@@ -152,31 +152,26 @@ void execute(Command cmd) {
 			}
 
 			fd=-1;
-			if(cmd.filev[1]!=NULL && i==(cmd.pipes-1)){
+			if(cmd.filev[1]!=NULL && i==(cmd.pipes-1)) fd = creat(cmd.filev[1], 0644);
+      else fd = pfd[1];
+      if(fd !=-1){
 
-				fd = creat(cmd.filev[1], 0644);
-				dup2(fd, STDOUT_FILENO);
-				close(fd);
+        dup2(fd, STDOUT_FILENO);
+        close(fd);
 
-			}
+      }
 
 			if(execvp(cmd.argv[i][0], cmd.argv[i])<0) levenshtein(cmd.argv[i], commands);
 
 	}
 
-	int last_status=0;
 	if(cmd.bg==0){
 
 		while(1){
 
 			pid=wait(&status);
 			if(pid<0) break;
-			if(pid==lastpid){
-
-				last_status = status;
-				break;
-
-			}
+			if(pid==lastpid) break;
 
 		}
 

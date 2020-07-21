@@ -69,13 +69,16 @@ int *levenshtein(char **cf, char **list){
   int i=1;
   while(cf[i]!=NULL){ i++; }
 
-  printf("Maybe you wanted to type this: %s", corrected);
-  for(int j=1; j<i; j++){
+  if(strlen(corrected)>0){
 
-    printf(" %s", cf[j]);
+    printf("Maybe you wanted to type this: %s", corrected);
+    for(int j=1; j<i; j++){
+
+      printf(" %s", cf[j]);
+
+    }
 
   }
-
 
   printf("\n");
   return 0;
