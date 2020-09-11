@@ -40,8 +40,10 @@ void tutorial(char *c, char **list){
     ANSI_COLOR_RESET, "It changes the directory you are currently for the one you've asked.\n");
     fprintf(stdout, "%s%s%s%s", ANSI_COLOR_GREEN, "EXIT OF THE FUNCTION:\n",
     ANSI_COLOR_RESET, "0 if it's correct, distinct than 0 if not\n");
-    fprintf(stdout, "%s%s%s%s", ANSI_COLOR_GREEN, "EXAMPLE FOR YOU TO TRY:\n",
-    ANSI_COLOR_RESET, "cd ~/Documents\n");
+    fprintf(stdout, "%s%s%s%s%s%s", ANSI_COLOR_GREEN, "EXAMPLE FOR YOU TO TRY:\n",
+    ANSI_COLOR_RED, "#Change to the Documents directory\n", ANSI_COLOR_RESET, "cd ~/Documents\n");
+    fprintf(stdout, "%s%s%s%s%s%s", ANSI_COLOR_RED, "#Change to the previous directory\n", ANSI_COLOR_RESET, "cd ..\n",
+    ANSI_COLOR_RED, "#Change to your home directory", ANSI_COLOR_RESET, "cd ~");
 
   }
 
